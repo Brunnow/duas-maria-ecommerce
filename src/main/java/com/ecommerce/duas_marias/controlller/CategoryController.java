@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ecommerce.duas_marias.service.CategoryService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +16,7 @@ import com.ecommerce.duas_marias.model.Category;
 @RestController
 public class CategoryController {
 
+    @Autowired
     private CategoryService categoryService;
 
     public CategoryController(CategoryService categoryService) {
