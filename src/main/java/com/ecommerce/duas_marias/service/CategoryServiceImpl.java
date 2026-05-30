@@ -1,5 +1,6 @@
 package com.ecommerce.duas_marias.service;
 
+import com.ecommerce.duas_marias.exceptions.APIException;
 import com.ecommerce.duas_marias.exceptions.ResourceNotFoundException;
 import com.ecommerce.duas_marias.model.Category;
 
@@ -28,6 +29,9 @@ public class CategoryServiceImpl implements CategoryService{
 
     @Override
     public void createCategory(Category category) {
+        Category savedCategory = categoryRepository.findByCategoryName(category.getCategoryName());
+        if(savedCategory != null)
+            throw new APIException("Category with the name " + category.getCategoryName() + "already exists !!!");
       //  category.setCategoryId(null);
         categoryRepository.save(category);
     }
