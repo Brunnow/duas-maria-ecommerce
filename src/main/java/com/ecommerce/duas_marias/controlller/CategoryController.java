@@ -16,6 +16,11 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
+    @GetMapping("/echo")
+    public ResponseEntity<String> echoMessage(@RequestParam(name = "message", required = false) String message){
+        return new ResponseEntity<>("Echoed message: " + message, HttpStatus.OK);
+    }
+
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
