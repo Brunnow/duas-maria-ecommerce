@@ -3,6 +3,7 @@ package com.ecommerce.duas_marias.controlller;
 import com.ecommerce.duas_marias.config.AppConstants;
 import com.ecommerce.duas_marias.payload.CategoryDTO;
 import com.ecommerce.duas_marias.payload.CategoryResponse;
+import com.ecommerce.duas_marias.payload.ProductResponse;
 import com.ecommerce.duas_marias.service.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
