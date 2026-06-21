@@ -10,11 +10,13 @@ import com.ecommerce.duas_marias.payload.ProductDTO;
 import com.ecommerce.duas_marias.repositories.CartItemRepository;
 import com.ecommerce.duas_marias.repositories.CartRepository;
 import com.ecommerce.duas_marias.repositories.ProductRepository;
+import com.ecommerce.duas_marias.util.AuthUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -86,7 +88,30 @@ public class CartServiceImpl implements CartService {
             return cartDTO;
         }
 
-        private Cart createCart () {
+    @Override
+    public List<CartDTO> getAllCarts() {
+        List<Cart> carts = cartRepository.findAll();
+
+        if (carts.size() == 0) {
+            throw new APIException("No cart exists");
+        }
+
+        List<CartDTO> cartDTOs = carts.stream().map(cart -> {
+            CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+
+            List<ProductDTO> products = cart.getCartItems().stream()
+                    .map(p -> modelMapper.map(p.getProduct(), ProductDTO.class)).collect(Collectors.toList());
+
+            cartDTO.setProducts(products);
+
+            return cartDTO;
+
+        }).collect(Collectors.toList());
+
+        return cartDTOs;
+    }
+
+    private Cart createCart () {
             Cart userCart = cartRepository.findCartByEmail(authUtil.loggedInEmail());
             if (userCart != null) {
                 return userCart;
@@ -100,4 +125,4 @@ public class CartServiceImpl implements CartService {
             return newCart;
         }
     }
-}
+
