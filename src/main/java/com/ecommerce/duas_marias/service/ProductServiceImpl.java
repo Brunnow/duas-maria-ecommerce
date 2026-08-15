@@ -53,6 +53,9 @@ public class ProductServiceImpl implements ProductService {
     @Value("${project.image}")
     private String path;
 
+    @Value("${image.base.url}")
+    private String imageBaseUrl;
+
     @Override
     public ProductDTO addProduct(Long categoryId, ProductDTO productDTO) {
         Category category = categoryRepository.findById(categoryId)
@@ -94,8 +97,12 @@ public class ProductServiceImpl implements ProductService {
         List<Product> products = pageProducts.getContent();
 
         List<ProductDTO> productDTOS = products.stream()
-             .map(product -> modelMapper.map(product, ProductDTO.class))
-             .collect(Collectors.toList());
+                .map(product -> {
+                    ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);
+                    productDTO.setImage(constructImageUrl(product.getImage()));
+                    return productDTO;
+                })
+                .toList();
 
 
         ProductResponse productResponse = new ProductResponse();
@@ -107,6 +114,11 @@ public class ProductServiceImpl implements ProductService {
         productResponse.setLastPage(pageProducts.isLast());
         return productResponse;
     }
+
+    private String constructImageUrl (String imageName){
+        return imageBaseUrl.endsWith("/") ? imageBaseUrl + imageName : imageBaseUrl + "/" + imageName;
+    }
+
 
     @Override
     public ProductResponse searchByCategory(Long categoryId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
@@ -154,7 +166,13 @@ public class ProductServiceImpl implements ProductService {
 
         List<Product> products =  pageProducts.getContent();
         List<ProductDTO> productDTOS = products.stream()
-                .map(product -> modelMapper.map(product, ProductDTO.class))
+                .map(product -> {
+                    ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);
+                    productDTO.setImage(constructImageUrl(product.getImage()));
+                    return productDTO;
+
+                })
+
                 .collect(Collectors.toList());
 
         if (products.isEmpty()){
@@ -226,22 +244,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDTO updateProductImage(Long productId, MultipartFile image) throws IOException {
-        // Get the product from DB
         Product productFromDb = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
 
-        // Upload image to server
-        // Get the file name of uploaded image
         String fileName = fileService.uploadImage(path, image);
-
-        // Updating the new file name to the product
         productFromDb.setImage(fileName);
 
-        // Save updated product
         Product updatedProduct = productRepository.save(productFromDb);
-
-        // return DTO after mapping product to DTO
-        return  modelMapper.map(updatedProduct, ProductDTO.class);
+        return modelMapper.map(updatedProduct, ProductDTO.class);
     }
 
     private String uploadImage(String path, MultipartFile file) throws IOException {
